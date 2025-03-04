@@ -7,6 +7,7 @@ import { Liquid } from 'liquidjs';
 
 
 console.log('Hieronder moet je waarschijnlijk nog wat veranderen')
+
 // Doe een fetch naar de data die je nodig hebt
 // const apiResponse = await fetch('...')
 
@@ -32,6 +33,16 @@ app.engine('liquid', engine.express());
 // Stel de map met Liquid templates in
 // Let op: de browser kan deze bestanden niet rechtstreeks laden (zoals voorheen met HTML bestanden)
 app.set('views', './views')
+
+// Fetch naar de nodige data in fabrique_art_objects
+app.get('/', async function (request, response) {
+  const apiResponse = await fetch(
+    'https://fdnd-agency.directus.app/items/fabrique_art_objects'
+  );
+  const apiResponseJSON = await apiResponse.json(); // Lees van de response van die fetch het JSON object in, waar we iets mee kunnen doen
+  
+  response.render("index.liquid", { api: apiResponseJSON.data });
+});
 
 // Maak een GET route voor de index (meestal doe je dit in de root, als /)
 app.get('/', async function (request, response) {
