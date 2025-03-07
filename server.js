@@ -44,11 +44,27 @@ app.get('/', async function (request, response) {
   response.render("index.liquid", { api: apiResponseJSON.data });
 });
 
+app.get('/details', async function (request, response) {
+  const apiResponse = await fetch(
+    'https://fdnd-agency.directus.app/items/fabrique_art_objects'
+  );
+  const apiResponseJSON = await apiResponse.json(); // Lees van de response van die fetch het JSON object in, waar we iets mee kunnen doen
+  
+  response.render("details.liquid", { api: apiResponseJSON.data });
+});
+
 // Maak een GET route voor de index (meestal doe je dit in de root, als /)
 app.get('/', async function (request, response) {
    // Render index.liquid uit de Views map
    // Geef hier eventueel data aan mee
    response.render('index.liquid')
+})
+
+// Maak een GET route voor de details (meestal doe je dit in de root, als /)
+app.get('/details', async function (request, response) {
+  // Render index.liquid uit de Views map
+  // Geef hier eventueel data aan mee
+  response.render('details.liquid')
 })
 
 // Maak een POST route voor de index; hiermee kun je bijvoorbeeld formulieren afvangen
