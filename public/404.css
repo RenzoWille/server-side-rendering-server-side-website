@@ -1,0 +1,9 @@
+.error-message {
+    h1 {
+        color: white;
+        display: grid;
+        place-content: center;
+        padding-top: 10em;
+        font-size: 2em;
+    }
+}

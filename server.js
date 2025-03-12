@@ -28,7 +28,7 @@ app.use(express.static('public'))
 
 // Stel Liquid in als 'view engine'
 const engine = new Liquid();
-app.engine('liquid', engine.express()); 
+app.engine('liquid', engine.express());
 
 // Stel de map met Liquid templates in
 // Let op: de browser kan deze bestanden niet rechtstreeks laden (zoals voorheen met HTML bestanden)
@@ -40,7 +40,7 @@ app.get('/', async function (request, response) {
     'https://fdnd-agency.directus.app/items/fabrique_art_objects'
   );
   const apiResponseJSON = await apiResponse.json(); // Lees van de response van die fetch het JSON object in, waar we iets mee kunnen doen
-  
+
   response.render("index.liquid", { api: apiResponseJSON.data });
 });
 
@@ -49,24 +49,39 @@ app.get('/details', async function (request, response) {
     'https://fdnd-agency.directus.app/items/fabrique_art_objects'
   );
   const apiResponseJSON = await apiResponse.json(); // Lees van de response van die fetch het JSON object in, waar we iets mee kunnen doen
-  
+
   response.render("details.liquid", { api: apiResponseJSON.data });
 });
 
-app.get('/details:title', async function (request, response) {
-  const apiResponse = await fetch(
-    'https://fdnd-agency.directus.app/items/fabrique_art_objects'
-  );
-  const apiResponseJSON = await apiResponse.json(); // Lees van de response van die fetch het JSON object in, waar we iets mee kunnen doen
-  
-  response.render("details.liquid", { api: apiResponseJSON.data });
+// Maak een reguliere expressie aan met routing en params waarbij alleen objects met een cijfer of meerdere als id aangesproken worden 
+
+app.get(/details\/(\d+)/, async function (request, response) {
+  const artworkId = request.params[0];
+  const apiResponse = await fetch(`https://fdnd-agency.directus.app/items/fabrique_art_objects/${artworkId}?fields=title,image,slug`);
+  const artworkData = await apiResponse.json();
+  response.render('details.liquid', { artwork: artworkData.data });
 });
+
+
+app.get('details/:id', (req, res) => {
+  res.send(req.params)
+})
+
+
+// app.get('/details:title', async function (request, response) {
+//   const apiResponse = await fetch(
+//     'https://fdnd-agency.directus.app/items/fabrique_art_objects'
+//   );
+//   const apiResponseJSON = await apiResponse.json(); // Lees van de response van die fetch het JSON object in, waar we iets mee kunnen doen
+
+//   response.render("details.liquid", { api: apiResponseJSON.data });
+// });
 
 // Maak een GET route voor de index (meestal doe je dit in de root, als /)
 app.get('/', async function (request, response) {
-   // Render index.liquid uit de Views map
-   // Geef hier eventueel data aan mee
-   response.render('index.liquid')
+  // Render index.liquid uit de Views map
+  // Geef hier eventueel data aan mee
+  response.render('index.liquid')
 })
 
 // Maak een GET route voor de details (meestal doe je dit in de root, als /)
@@ -81,6 +96,25 @@ app.get('/details:title', async function (request, response) {
   // Render index.liquid uit de Views map
   // Geef hier eventueel data aan mee
   response.render('details.liquid')
+})
+
+// Maak een GET route voor de details (meestal doe je dit in de root, als /)
+app.get('/404', async function (request, response) {
+  // Render index.liquid uit de Views map
+  // Geef hier eventueel data aan mee
+  const apiResponse = await fetch(
+    `https://fdnd-agency.directus.app/items/fabrique_art_objects/${artworkId}?fields=image`
+  );
+
+  // Lees van de response van die fetch het JSON object in, waar we iets mee kunnen doen
+  const apiResponseJSON = await apiResponse.json();
+
+  response.render('404.liquid')
+})
+
+// Maak een route naar de 404 pagina als er een error zich voordoet
+app.use((req, res, next) => {
+  res.status(404).render('404.liquid')
 })
 
 // Maak een POST route voor de index; hiermee kun je bijvoorbeeld formulieren afvangen
